@@ -43,6 +43,9 @@ class TrigScintClusterProducer : public framework::Producer {
 
   virtual void onProcessEnd();
 
+
+  double total_time = 0;
+
  private:
   // collection of clusters produced
   std::vector<ldmx::TrigScintCluster> clusters_;
@@ -61,7 +64,7 @@ class TrigScintClusterProducer : public framework::Producer {
 
   //expected arrival time of hits in the pad [ns]
   double padTime_{0.};
-  
+
   //maximum allowed delay for hits to be considered for clustering
   double timeTolerance_{0.};
 
@@ -74,7 +77,7 @@ class TrigScintClusterProducer : public framework::Producer {
   // specific pass name to use for track making
   std::string passName_{""};
 
-  // vertical bar start index 
+  // vertical bar start index
   int vertBarStartIdx_{52};
 
   // cluster channel nb centroid (will be content weighted)

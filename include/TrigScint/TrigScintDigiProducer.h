@@ -60,6 +60,7 @@ class TrigScintDigiProducer : public framework::Producer {
 
   ldmx::TrigScintID generateRandomID(int module);
 
+
  private:
   /// Random number generator
   std::unique_ptr<TRandom3> random_{nullptr};

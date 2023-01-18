@@ -3,17 +3,26 @@
 #include "Framework/RandomNumberSeedService.h"
 
 #include <iostream>
+#include <chrono>
 
 namespace trigscint {
 
 TrigScintDigiProducer::TrigScintDigiProducer(const std::string &name,
                                              framework::Process &process)
-    : Producer(name, process) {}
+    : Producer(name, process) {
+      auto t1 = std::chrono::high_resolution_clock::now();
+      auto t2 = std::chrono::high_resolution_clock::now();
+      auto time_taken = std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
+      std::cout << "TrigScintDigiProducer init() took "
+                  << time_taken
+                  << " nanoseconds\n";
+    }
 
 TrigScintDigiProducer::~TrigScintDigiProducer() {}
 
 void TrigScintDigiProducer::configure(
     framework::config::Parameters &parameters) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   // Configure this instance of the producer
   stripsPerArray_ = parameters.getParameter<int>("number_of_strips");
   numberOfArrays_ = parameters.getParameter<int>("number_of_arrays");
@@ -30,6 +39,11 @@ void TrigScintDigiProducer::configure(
 
   noiseGenerator_ = std::make_unique<ldmx::NoiseGenerator>(meanNoise_, false);
   noiseGenerator_->setNoiseThreshold(1);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  auto time_taken = std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
+  std::cout << "TrigScintDigiProducer configure() took "
+              << time_taken
+              << " nanoseconds\n";
 }
 
 ldmx::TrigScintID TrigScintDigiProducer::generateRandomID(int module) {
@@ -45,6 +59,7 @@ ldmx::TrigScintID TrigScintDigiProducer::generateRandomID(int module) {
 }
 
 void TrigScintDigiProducer::produce(framework::Event &event) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   // Need to handle seeding on the first event
   if (!noiseGenerator_->hasSeed()) {
     const auto &rseed = getCondition<framework::RandomNumberSeedService>(
@@ -213,7 +228,12 @@ void TrigScintDigiProducer::produce(framework::Event &event) {
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // - -
-
+  auto t2 = std::chrono::high_resolution_clock::now();
+  auto time_taken = std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
+  std::cout << event.getEventNumber()
+              << ","
+              << time_taken
+              << ",TSDigi\n";
   event.add(outputCollection_, trigScintHits);
 }
 }  // namespace trigscint

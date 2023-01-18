@@ -3,6 +3,7 @@
 
 #include <iterator>  // std::next
 #include <map>
+#include <chrono>
 
 namespace trigscint {
 
@@ -35,6 +36,7 @@ void TrigScintClusterProducer::configure(framework::config::Parameters &ps) {
 }
 
 void TrigScintClusterProducer::produce(framework::Event &event) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   // parameters.
   // a cluster seeding threshold
   // a clustering threshold -- a lower boundary for being added at all (zero
@@ -67,7 +69,7 @@ void TrigScintClusterProducer::produce(framework::Event &event) {
 
     ampl:    _                   _                   _
             | |_                | |                 | |
-        ----| | |---------------| |-----------------| |------- cluster seed threshold 
+        ----| | |---------------| |-----------------| |------- cluster seed threshold
 	    | | |_              | |_ _              | |_
            _| | | |            _| | | |            _| | |  _
           | | | | |     vs    | | | | |    vs     | | | | | |
@@ -173,7 +175,7 @@ void TrigScintClusterProducer::produce(framework::Event &event) {
         }
       }
 
-      // don't add in late hits 
+      // don't add in late hits
       if (digi.getTime() > padTime_ + timeTolerance_ )
 	continue;
 
@@ -414,9 +416,9 @@ void TrigScintClusterProducer::produce(framework::Event &event) {
 	  float cy = centroid_;
 	  float cz = -99999;  //set to nonsense for now. could be set to module nb
 	  if (centroid_ < vertBarStartIdx_) //then in horizontal bars --> we don't know X
-		cx = -1;  //set to nonsense in barID space. could translate to x=0 mm 
-	  else { 
-		cx = (int)((centroid_- vertBarStartIdx_)/4); //start at 0 
+		cx = -1;  //set to nonsense in barID space. could translate to x=0 mm
+	  else {
+		cx = (int)((centroid_- vertBarStartIdx_)/4); //start at 0
 		cy = (int)centroid_%4;
 	  }
 	  cluster.setCentroidXYZ(cx, cy, cz);
@@ -462,6 +464,12 @@ void TrigScintClusterProducer::produce(framework::Event &event) {
   v_usedIndices_.resize(
       0);  // book keep which channels have already been added to a cluster
 
+  auto t2 = std::chrono::high_resolution_clock::now();
+  auto time_taken = std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
+  std::cout << event.getEventNumber()
+              << ","
+              << time_taken
+              << ",TSCluster\n";
   return;
 }
 
